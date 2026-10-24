@@ -94,4 +94,86 @@ public class UserServiceTest {
         assertThrows(BadRequestException.class, () -> service.register(nullEmail));
     }
 
+    @Test
+    public void loginSuccessTest() throws Exception{
+        MemoryUserDAO userDAO = new MemoryUserDAO();
+        MemoryAuthDAO authDAO = new MemoryAuthDAO();
+        UserService service = new UserService(userDAO, authDAO);
+        RegisterRequest registerRequest = new RegisterRequest("jake", "1234","jake@gmail.com");
+        service.register(registerRequest);
+        LoginRequest loginRequest = new LoginRequest("jake", "1234");
+        LoginResult result = service.login(loginRequest);
+        assertEquals("jake", result.username());
+        assertNotNull(result.authToken());
+        AuthData storedAuth = authDAO.getAuth(result.authToken());
+        assertNotNull(storedAuth);
+        assertEquals("jake", storedAuth.username());
+    }
+
+    @Test
+    public void loginFailTest() throws Exception{
+        MemoryUserDAO userDAO = new MemoryUserDAO();
+        MemoryAuthDAO authDAO = new MemoryAuthDAO();
+        UserService service = new UserService(userDAO, authDAO);
+        RegisterRequest registerRequest = new RegisterRequest("jake", "1234","jake@gmail.com");
+        service.register(registerRequest);
+        LoginRequest loginRequest = new LoginRequest("jake", "wrongPassword");
+        assertThrows(UnauthorizedException.class, () -> service.login(loginRequest));
+    }
+
+    @Test
+    public void loginNonexistentUserTest() {
+        MemoryUserDAO userDAO = new MemoryUserDAO();
+        MemoryAuthDAO authDAO = new MemoryAuthDAO();
+        UserService service = new UserService(userDAO, authDAO);
+        LoginRequest loginRequest = new LoginRequest("hailey", "1234");
+        assertThrows(UnauthorizedException.class, () -> service.login(loginRequest));
+    }
+
+    @Test
+    public void loginNullRequestTest() {
+        MemoryUserDAO userDAO = new MemoryUserDAO();
+        MemoryAuthDAO authDAO = new MemoryAuthDAO();
+        UserService service = new UserService(userDAO, authDAO);
+        assertThrows(BadRequestException.class, () -> service.login(null));
+    }
+
+    @Test
+    public void loginMissingUsernameTest() {
+        MemoryUserDAO userDAO = new MemoryUserDAO();
+        MemoryAuthDAO authDAO = new MemoryAuthDAO();
+        UserService service = new UserService(userDAO, authDAO);
+        LoginRequest loginRequest = new LoginRequest(null, "1234");
+        assertThrows(BadRequestException.class, () -> service.login(loginRequest));
+    }
+
+    @Test
+    public void loginBlankUsernameTest() {
+        MemoryUserDAO userDAO = new MemoryUserDAO();
+        MemoryAuthDAO authDAO = new MemoryAuthDAO();
+        UserService service = new UserService(userDAO, authDAO);
+        LoginRequest loginRequest = new LoginRequest(" ", "1234");
+        assertThrows(BadRequestException.class, () -> service.login(loginRequest));
+    }
+
+    @Test
+    public void loginMissingPasswordTest() {
+        MemoryUserDAO userDAO = new MemoryUserDAO();
+        MemoryAuthDAO authDAO = new MemoryAuthDAO();
+        UserService service = new UserService(userDAO, authDAO);
+        LoginRequest loginRequest = new LoginRequest("jake", null);
+        assertThrows(BadRequestException.class, () -> service.login(loginRequest));
+    }
+
+    @Test
+    public void loginBlankPasswordTest() {
+        MemoryUserDAO userDAO = new MemoryUserDAO();
+        MemoryAuthDAO authDAO = new MemoryAuthDAO();
+        UserService service = new UserService(userDAO, authDAO);
+        LoginRequest loginRequest = new LoginRequest("jake", " ");
+        assertThrows(BadRequestException.class, () -> service.login(loginRequest));
+    }
+
+
+
 }
