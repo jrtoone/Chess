@@ -1,10 +1,13 @@
 package server;
 
+import com.google.gson.JsonSyntaxException;
 import io.javalin.*;
 import dataaccess.*;
 import service.AdminService;
 import com.google.gson.Gson;
-
+import service.AlreadyTakenException;
+import service.BadRequestException;
+import service.UserService;
 import java.util.Map;
 
 public class Server {
@@ -24,6 +27,26 @@ public class Server {
             ctx.contentType("application/json");
             ctx.result(new Gson().toJson(Map.of("message", "Error: " + exception.getMessage())));
         });
+        javalin.exception(BadRequestException.class, (exception, ctx) -> {
+            ctx.status(400);
+            ctx.contentType("application/json");
+            ctx.result(new Gson().toJson(Map.of("message", exception.getMessage())));
+        });
+        javalin.exception(AlreadyTakenException.class, (exception, ctx) -> {
+            ctx.status(403);
+            ctx.contentType("application/json");
+            ctx.result(new Gson().toJson(Map.of("message", exception.getMessage())));
+        });
+        javalin.exception(JsonSyntaxException.class, (exception,  ctx) -> {
+            ctx.status(400);
+            ctx.contentType("application/json");
+            ctx.result(new Gson().toJson(
+                    Map.of("message", "Error: bad request")
+            ));
+        });
+        UserService userService = new UserService(userDAO, authDAO);
+        RegisterHandler registerHandler = new RegisterHandler(userService);
+        javalin.post("/user", registerHandler::register);
     }
 
     public int run(int desiredPort) {
