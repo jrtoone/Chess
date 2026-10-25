@@ -174,6 +174,28 @@ public class UserServiceTest {
         assertThrows(BadRequestException.class, () -> service.login(loginRequest));
     }
 
+    @Test
+    public void logoutSuccessTest() throws Exception {
+        MemoryUserDAO userDAO = new MemoryUserDAO();
+        MemoryAuthDAO authDAO = new MemoryAuthDAO();
+        UserService service = new UserService(userDAO, authDAO);
+        RegisterRequest registerRequest = new RegisterRequest("jake", "1234","jake@gmail.com");
+        service.register(registerRequest);
+        LoginRequest loginRequest = new LoginRequest("jake", "1234");
+        LoginResult result = service.login(loginRequest);
+        AuthData storedAuth = authDAO.getAuth(result.authToken());
+        assertNotNull(storedAuth);
+        service.logout(storedAuth.authToken());
+        AuthData deleteAuth = authDAO.getAuth(result.authToken());
+        assertNull(deleteAuth);
+    }
 
+    @Test
+    public void logoutInvalidTokenTest() {
+        MemoryUserDAO userDAO = new MemoryUserDAO();
+        MemoryAuthDAO authDAO = new MemoryAuthDAO();
+        UserService service = new UserService(userDAO, authDAO);
+        assertThrows(UnauthorizedException.class, () -> service.logout("invalidToken"));
+    }
 
 }
