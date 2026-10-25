@@ -20,6 +20,7 @@ public class Server {
         GameDAO gameDAO = new MemoryGameDAO();
         AdminService adminService = new AdminService(userDAO, authDAO, gameDAO);
         ClearHandler clearHandler = new ClearHandler(adminService);
+        GameService gameService = new GameService(authDAO, gameDAO);
         javalin.delete("/db", clearHandler::clear);
 
         // Exception Handlers
@@ -61,6 +62,9 @@ public class Server {
 
         LogoutHandler logoutHandler = new LogoutHandler(userService);
         javalin.delete("/session", logoutHandler::logout);
+
+        ListGamesHandler listGamesHandler = new ListGamesHandler(gameService);
+        javalin.get("/game", listGamesHandler::listGames);
     }
 
     public int run(int desiredPort) {
