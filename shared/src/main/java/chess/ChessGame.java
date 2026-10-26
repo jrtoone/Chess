@@ -160,27 +160,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        if(!isInCheck(teamColor)){
-            return false;
-        }
-        for(int r = 1; r <= 8; r++){
-            for(int c = 1; c <=8; c++){
-                ChessPosition pos = new ChessPosition(r, c);
-                ChessPiece piece = board.getPiece(pos);
-                if(piece == null){
-                    continue;
-                }
-                if(piece.getTeamColor() != teamColor){
-                    continue;
-                }
-                Collection<ChessMove> move = validMoves(pos);
-                if(move != null && !move.isEmpty()){
-                    return false;
-                }
-            }
-        }
-
-        return true;
+        return isInCheck(teamColor) && !hasLegalMoves(teamColor);
     }
 
     /**
@@ -191,26 +171,32 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        if (isInCheck(teamColor)) {
-            return false;
-        }
+        return !isInCheck(teamColor) && !hasLegalMoves(teamColor);
+    }
+
+    private boolean hasLegalMoves(TeamColor teamColor) {
         for (int r = 1; r <= 8; r++) {
             for (int c = 1; c <= 8; c++) {
                 ChessPosition pos = new ChessPosition(r, c);
                 ChessPiece piece = board.getPiece(pos);
+
                 if (piece == null) {
                     continue;
                 }
+
                 if (piece.getTeamColor() != teamColor) {
                     continue;
                 }
-                Collection<ChessMove> move = validMoves(pos);
-                if (move != null && !move.isEmpty()) {
-                    return false;
+
+                Collection<ChessMove> moves = validMoves(pos);
+
+                if (moves != null && !moves.isEmpty()) {
+                    return true;
                 }
             }
         }
-        return true;
+
+        return false;
     }
 
     /**
