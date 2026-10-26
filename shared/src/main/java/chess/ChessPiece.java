@@ -67,17 +67,52 @@ public class ChessPiece {
         return moves;
     }
 
-    private void kingMoves(ChessBoard board, ChessPosition from, ArrayList<ChessMove> moves){
+    private void slidingMoves(
+            ChessBoard board,
+            ChessPosition from,
+            ArrayList<ChessMove> moves,
+            int[][] directions){
         int r = from.getRow();
         int c = from.getColumn();
-        int[][] deltas = {
-                {-1,-1},{-1,0},{-1,1},{0,-1},{0,1},{1,-1},{1,0},{1,1}
-        };
-        for (int[] d : deltas){
+        for(int[] dir : directions) {
+            int dr = dir[0];
+            int dc = dir[1];
+
+            int newRow = r + dr;
+            int newCol = c + dc;
+
+            while(isOnBoard(newRow, newCol)) {
+                ChessPosition to = new ChessPosition(newRow, newCol);
+                ChessPiece target = board.getPiece(to);
+                if(target == null){
+                    moves.add(new ChessMove(from, to, null));
+                }
+                else {
+                    if (target.getTeamColor() != this.teamColor) {
+                        moves.add(new ChessMove(from, to, null));
+                    }
+                    break;
+                }
+                newRow += dr;
+                newCol += dc;
+            }
+        }
+    }
+
+    private void jumpingMoves(
+            ChessBoard board,
+            ChessPosition from,
+            ArrayList<ChessMove> moves,
+            int[][] deltas) {
+
+        int r = from.getRow();
+        int c = from.getColumn();
+
+        for (int[] d : deltas) {
             int newRow = r + d[0];
             int newCol = c + d[1];
 
-            if(!isOnBoard(newRow, newCol)){
+            if (!isOnBoard(newRow, newCol)) {
                 continue;
             }
 
@@ -88,93 +123,36 @@ public class ChessPiece {
                 moves.add(new ChessMove(from, to, null));
             }
         }
+    }
 
+    private void kingMoves(ChessBoard board, ChessPosition from, ArrayList<ChessMove> moves){
+        int[][] deltas = {
+                {-1,-1},{-1,0},{-1,1},{0,-1},{0,1},{1,-1},{1,0},{1,1}
+        };
+        jumpingMoves(board, from, moves, deltas);
     }
 
     private void knightMoves(ChessBoard board, ChessPosition from, ArrayList<ChessMove> moves){
-        int r = from.getRow();
-        int c = from.getColumn();
         int[][] deltas = {
                 { 2, 1}, { 2,-1},
                 {-2, 1}, {-2,-1},
                 { 1, 2}, { 1,-2},
                 {-1, 2}, {-1,-2}
         };
-        for (int[] d : deltas){
-            int newRow = r + d[0];
-            int newCol = c + d[1];
-
-            if (!isOnBoard(newRow, newCol)){
-                continue;
-            }
-            ChessPosition to = new ChessPosition(newRow, newCol);
-            ChessPiece target = board.getPiece(to);
-
-            if(target == null || target.getTeamColor() != this.teamColor){
-                moves.add(new ChessMove(from, to, null));
-            }
-        }
+        jumpingMoves(board, from, moves, deltas);
     }
 
     private void bishopMoves(ChessBoard board, ChessPosition from, ArrayList<ChessMove> moves){
-        int r = from.getRow();
-        int c = from.getColumn();
         int[][] directions = {
                 {1,1},{1,-1},{-1,1},{-1,-1}
         };
-        for(int[] dir : directions){
-            int dr = dir[0];
-            int dc = dir[1];
-
-            int newRow = r + dr;
-            int newCol = c + dc;
-
-            while (isOnBoard(newRow, newCol)){
-                ChessPosition to = new ChessPosition(newRow, newCol);
-                ChessPiece target = board.getPiece(to);
-
-                if (target == null){
-                    moves.add(new ChessMove(from, to, null));
-                } else {
-                    if (target.getTeamColor() != this.teamColor){
-                        moves.add(new ChessMove(from, to, null));
-                    }
-                    break;
-                }
-                newRow += dr;
-                newCol += dc;
-            }
-        }
+        slidingMoves(board, from, moves, directions);
     }
     private void rookMoves(ChessBoard board, ChessPosition from, ArrayList<ChessMove> moves){
-        int r = from.getRow();
-        int c = from.getColumn();
         int[][] directions = {
                 {1,0},{-1,0},{0,-1},{0,1}
         };
-        for(int[] dir : directions){
-            int dr = dir[0];
-            int dc = dir[1];
-
-            int newRow = r + dr;
-            int newCol = c + dc;
-
-            while (isOnBoard(newRow, newCol)){
-                ChessPosition to = new ChessPosition(newRow, newCol);
-                ChessPiece target = board.getPiece(to);
-
-                if (target == null){
-                    moves.add(new ChessMove(from, to, null));
-                } else {
-                    if (target.getTeamColor() != this.teamColor){
-                        moves.add(new ChessMove(from, to, null));
-                    }
-                    break;
-                }
-                newRow += dr;
-                newCol += dc;
-            }
-        }
+        slidingMoves(board, from, moves, directions);
     }
 
     private void queenMoves(ChessBoard board, ChessPosition from, ArrayList<ChessMove> moves){

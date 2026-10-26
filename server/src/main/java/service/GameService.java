@@ -40,7 +40,8 @@ public class GameService {
         return new ListGamesResult(summaries);
     }
 
-    public CreateGameResult createGame(String authToken, CreateGameRequest request) throws DataAccessException, UnauthorizedException, BadRequestException {
+    public CreateGameResult createGame(String authToken, CreateGameRequest request)
+            throws DataAccessException, UnauthorizedException, BadRequestException {
         AuthData auth = authDAO.getAuth(authToken);
         if(auth == null){
             throw new UnauthorizedException("Error: unauthorized");
@@ -54,7 +55,8 @@ public class GameService {
         return new CreateGameResult(gameID);
     }
 
-    public void joinGame(String authToken, JoinGameRequest request) throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
+    public void joinGame(String authToken, JoinGameRequest request)
+            throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
         AuthData auth = authDAO.getAuth(authToken);
         if (auth == null){
             throw new UnauthorizedException("Error: unauthorized");
