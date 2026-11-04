@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.JsonSyntaxException;
+import dataaccess.sql.SQLDatabaseInitializer;
 import io.javalin.*;
 import dataaccess.*;
 import service.*;
@@ -74,6 +75,11 @@ public class Server {
     }
 
     public int run(int desiredPort) {
+        try {
+            SQLDatabaseInitializer.initialize();
+        } catch (DataAccessException e) {
+            throw new IllegalStateException("Failed to initialize database", e);
+        }
         javalin.start(desiredPort);
         return javalin.port();
     }
