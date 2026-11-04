@@ -7,6 +7,7 @@ import dataaccess.GameDAO;
 import model.AuthData;
 import model.GameData;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 
 import java.util.Collection;
@@ -14,8 +15,6 @@ import java.util.Collection;
 public class GameService {
     private final AuthDAO authDAO;
     private final GameDAO gameDAO;
-    private int nextGameID = 1;
-
     public GameService(AuthDAO authDAO, GameDAO gameDAO){
         this.authDAO = authDAO;
         this.gameDAO = gameDAO;
@@ -49,7 +48,7 @@ public class GameService {
         if(request == null || request.gameName() == null || request.gameName().isBlank()){
             throw new BadRequestException("Error: bad request");
         }
-        int gameID = nextGameID++;
+        int gameID = getNextGameID();
         GameData game = new GameData(gameID, null, null, request.gameName(), new ChessGame());
         gameDAO.createGame(game);
         return new CreateGameResult(gameID);
@@ -94,6 +93,17 @@ public class GameService {
             );
             gameDAO.updateGame(updatedGame);
         }
+    }
+
+    private int getNextGameID() throws DataAccessException {
+        int maxID = 0;
+
+        for (GameData game : gameDAO.listGames()) {
+            if (game.gameID() > maxID) {
+                maxID = game.gameID();
+            }
+        }
+        return maxID + 1;
     }
 
 }
