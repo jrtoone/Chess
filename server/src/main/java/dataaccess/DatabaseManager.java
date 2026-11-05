@@ -65,6 +65,19 @@ public class DatabaseManager {
         }
     }
 
+//    private static void loadPropertiesFromResources() {
+//        try (var propStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("db.properties")) {
+//            if (propStream == null) {
+//                throw new Exception("Unable to load db.properties");
+//            }
+//            Properties props = new Properties();
+//            props.load(propStream);
+//            loadProperties(props);
+//        } catch (Exception ex) {
+//            throw new RuntimeException("unable to process db.properties", ex);
+//        }
+//    }
+
     private static void loadProperties(Properties props) {
         databaseName = props.getProperty("db.name");
         dbUsername = props.getProperty("db.user");

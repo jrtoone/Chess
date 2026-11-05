@@ -61,9 +61,6 @@ public class UserService {
         if(!passwordMatches){
             throw new UnauthorizedException(("Error: unauthorized"));
         }
-//        if(!user.password().equals(request.password())){
-//            throw new UnauthorizedException("Error: unauthorized");
-//        }
 
         String authToken = UUID.randomUUID().toString();
         AuthData auth = new AuthData(authToken, request.username());
