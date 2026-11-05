@@ -1,7 +1,10 @@
 package server;
 
 import com.google.gson.JsonSyntaxException;
+import dataaccess.sql.SQLAuthDAO;
 import dataaccess.sql.SQLDatabaseInitializer;
+import dataaccess.sql.SQLGameDAO;
+import dataaccess.sql.SQLUserDAO;
 import io.javalin.*;
 import dataaccess.*;
 import service.*;
@@ -16,9 +19,9 @@ public class Server {
     public Server() {
         // Javalin Config & Data Access Objects
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
-        UserDAO userDAO = new MemoryUserDAO();
-        AuthDAO authDAO = new MemoryAuthDAO();
-        GameDAO gameDAO = new MemoryGameDAO();
+        UserDAO userDAO = new SQLUserDAO();
+        AuthDAO authDAO = new SQLAuthDAO();
+        GameDAO gameDAO = new SQLGameDAO();
         AdminService adminService = new AdminService(userDAO, authDAO, gameDAO);
         ClearHandler clearHandler = new ClearHandler(adminService);
         GameService gameService = new GameService(authDAO, gameDAO);

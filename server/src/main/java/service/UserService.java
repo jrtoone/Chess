@@ -6,6 +6,7 @@ import dataaccess.UserDAO;
 import io.javalin.http.UnauthorizedResponse;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.UUID;
 
@@ -51,9 +52,18 @@ public class UserService {
         if(user == null){
             throw new UnauthorizedException("Error: unauthorized");
         }
-        if(!user.password().equals(request.password())){
-            throw new UnauthorizedException("Error: unauthorized");
+        boolean passwordMatches;
+        if(user.password().startsWith("$2a$")) {
+            passwordMatches = BCrypt.checkpw(request.password(), user.password());
+        } else {
+            passwordMatches = user.password().equals(request.password());
         }
+        if(!passwordMatches){
+            throw new UnauthorizedException(("Error: unauthorized"));
+        }
+//        if(!user.password().equals(request.password())){
+//            throw new UnauthorizedException("Error: unauthorized");
+//        }
 
         String authToken = UUID.randomUUID().toString();
         AuthData auth = new AuthData(authToken, request.username());
